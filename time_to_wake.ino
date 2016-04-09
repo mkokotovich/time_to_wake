@@ -42,14 +42,17 @@ void controlYellow(int state)
 void clockOff() {
   controlGreen(LOW);
   controlYellow(LOW);
+  current_state = "Off";
 }
 void clockYellow() {
   controlYellow(HIGH);
   controlGreen(LOW);
+  current_state = "Yellow";
 }
 void clockGreen() {
   controlYellow(LOW);
   controlGreen(HIGH);
+  current_state = "Green";
 }
 
 void startWifi(void)
@@ -86,6 +89,8 @@ void setup(void)
   }
 
   clockOff();
+
+  setupRestUI();
   
   startWifi();
   startRestUIServer();

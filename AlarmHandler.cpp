@@ -239,7 +239,7 @@ bool AlarmHandler::add_new_timer(
         return false;
     }
 
-    return addToLocalList(id, trigger_time, action);
+    return addToLocalList(id, trigger_time, action, repeating);
 }
 
 void AlarmHandler::cancelAllAlarms()
@@ -274,7 +274,7 @@ void AlarmHandler::pauseAllAlarms()
     paused = !paused;
 }
 
-bool AlarmHandler::addToLocalList(AlarmID_t id, time_t trigger_time, String action)
+bool AlarmHandler::addToLocalList(AlarmID_t id, time_t trigger_time, String action, bool repeating)
 {
     int i = 0;
     for (i = 0; i < MAX_ALARMS; i++)
@@ -284,6 +284,7 @@ bool AlarmHandler::addToLocalList(AlarmID_t id, time_t trigger_time, String acti
             alarms[i].id = id;
             alarms[i].trigger_time = trigger_time;
             alarms[i].action = action;
+            alarms[i].repeating = repeating;
             break;
         }
     }
@@ -327,9 +328,17 @@ String AlarmHandler::printAlarms()
         {
             if (alarms[i].trigger_time < current_time)
             {
-                // This alarm has already triggered, remove it
-                alarms[i].id = dtINVALID_ALARM_ID;
-                continue;
+                if (alarms[i].repeating)
+                {
+                    // This alarm repeats. Update the trigger time
+                    alarms[i].trigger_time += SECS_PER_DAY;
+                }
+                else
+                {
+                    // This alarm has already triggered, remove it
+                    alarms[i].id = dtINVALID_ALARM_ID;
+                    continue;
+                }
             }
             active_alarms[current_alarm] = &(alarms[i]);
             current_alarm++;

@@ -30,6 +30,7 @@ typedef struct {
     AlarmID_t id;
     time_t trigger_time;
     String action;
+    bool repeating;
 } alarm_info_t;
 
 class AlarmHandler {
@@ -57,7 +58,7 @@ public:
     void updateActiveAlarms(String &activeAlarms);
 
 private:
-    bool addToLocalList(AlarmID_t id, time_t trigger_time, String action);
+    bool addToLocalList(AlarmID_t id, time_t trigger_time, String action, bool repeating);
     void cancel(AlarmID_t id);
 
     String printAlarms();
