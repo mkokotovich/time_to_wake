@@ -203,15 +203,27 @@ bool AlarmHandler::add_new_timer(
     if (duration == 0)
     {
         // Alarm
-        trigger_time = hour * SECS_PER_HOUR + minute * SECS_PER_MIN;
+        time_t alarm_time = hour * SECS_PER_HOUR + minute * SECS_PER_MIN;
+        time_t current_time = now();
 
         if (repeating)
         {
-            id = Alarm.alarmRepeat(trigger_time, func);
+            id = Alarm.alarmRepeat(alarm_time, func);
         }
         else
         {
-            id = Alarm.alarmOnce(trigger_time, func);
+            id = Alarm.alarmOnce(alarm_time, func);
+        }
+
+        if (elapsedSecsToday(current_time) < alarm_time)
+        {
+            // Alarm still happens today
+            trigger_time = previousMidnight(current_time) + alarm_time;
+        }
+        else
+        {
+            // Alarm happens tomorrow
+            trigger_time = nextMidnight(current_time) + alarm_time;
         }
     }
     else
@@ -270,6 +282,8 @@ bool AlarmHandler::addToLocalList(AlarmID_t id, time_t trigger_time, String acti
         if (alarms[i].id == dtINVALID_ALARM_ID)
         {
             alarms[i].id = id;
+            alarms[i].trigger_time = trigger_time;
+            alarms[i].action = action;
             break;
         }
     }
@@ -318,6 +332,7 @@ String AlarmHandler::printAlarms()
                 continue;
             }
             active_alarms[current_alarm] = &(alarms[i]);
+            current_alarm++;
         }
     }
     
@@ -349,21 +364,27 @@ String AlarmHandler::printAlarms()
 
     String output = displayAlarmAsString(active_alarms[0]);
     // newline for separator
-    String sep = "%0A";
+    String sep = "<br>";
     //String sep = ", ";
     for (int i = 1; i < current_alarm; i++)
     {
         output += sep + displayAlarmAsString(active_alarms[i]);
     }
 
-    Serial.println("printAlarms: ");
-    Serial.println(output);
+    //Serial.println("DEBUG: printAlarms: ");
+    //Serial.println(output);
     return output;
 }
 
 String AlarmHandler::displayAlarmAsString(alarm_info_t *alarm)
 {
-    return String(hourFormat12(alarm->trigger_time)) + printDigits(minute(alarm->trigger_time)) + (isAM(alarm->trigger_time) ? " AM" : " PM") + alarm->action;
+    time_t t = alarm->trigger_time;
+    String output = String(month(t)) + "/" + String(day(t)) + " at " + String(hourFormat12(t)) + printDigits(minute(t)) + (isAM(t) ? " AM" : " PM") + alarm->action;
+    if (paused)
+    {
+        output += " (PAUSED)";
+    }
+    return output;
 }
 
 String AlarmHandler::printDigits(int digits)
