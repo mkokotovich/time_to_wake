@@ -10,11 +10,11 @@ const char* password = private_password;
 
 #define READ_TIMEOUT 10000 //10 seconds
 #define NUM_GREEN 4
-#define NUM_YELLOW 4
+#define NUM_YELLOW 3
 
 // Create LED arrays
-int green_leds[NUM_GREEN] = {D1, D2, D3, D4};
-int yellow_leds[NUM_YELLOW] = {D5, D6, D7, D8};
+int green_leds[NUM_GREEN] = {D5, D6, D7, D8};
+int yellow_leds[NUM_YELLOW] = {D1, D2, D3};
 
 // Create aREST instance
 aREST_UI rest = aREST_UI();
@@ -156,7 +156,7 @@ void setup(void)
 
 void loop() {
   // Reset device if wifi is disconnected
-  if (WiFi.status() == WL_DISCONNECTED)
+  if (WiFi.status() != WL_CONNECTED)
   {
     Serial.println("Wifi diconnected, reset connection");
     
