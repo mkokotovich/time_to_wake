@@ -1,4 +1,5 @@
 #include "AlarmHandler.h"
+#include "FS.h"
 
 // Global
 AlarmHandler alarmHandler = AlarmHandler();
@@ -407,3 +408,73 @@ String AlarmHandler::printDigits(int digits)
     return output;
 }
 
+void AlarmHandler::saveAlarmsToDisk()
+{
+    int num_alarms = 0;
+    
+    // Count alarms
+    for (int i = 0; i < MAX_ALARMS; i++)
+    {
+        if (alarms[i].id != dtINVALID_ALARM_ID)
+        {
+            num_alarms++;
+        }
+    }
+
+    if (num_alarms <= 0)
+    {
+        Serial.println("No alarms to save");
+        return;
+    }
+    Serial.println("====== Writing to SPIFFS file =========");
+    // open file for writing
+    File f = SPIFFS.open(ALARM_FILE, "w");
+    if (!f)
+    {
+        Serial.println("file open failed");
+        return;
+    }
+    f.println(ALARM_FILE_VERSION);
+    f.println(num_alarms);
+    for (int i = 0; i < MAX_ALARMS; i++)
+    {
+        if (alarms[i].id != dtINVALID_ALARM_ID)
+        {
+            f.println(alarms[i].id);
+            f.println(alarms[i].trigger_time);
+            f.println(alarms[i].action);
+            f.println(alarms[i].repeating);
+        }
+    }
+
+    f.close();
+
+}
+
+void AlarmHandler::loadAlarmsFromDisk()
+{
+    // open file for reading
+    String entry;
+    int num_alarms = 0;
+    f = SPIFFS.open(ALARM_FILE, "r");
+    if (!f)
+    {
+        Serial.println("file open failed");
+        return;
+    }
+    Serial.println("====== Reading from SPIFFS file =======");
+    entry = f.readStringUntil('\n');
+    if (entry == String(ALARM_FILE_VERSION_V1))
+    {
+        entry = f.readStringUntil('\n');
+        num_alarms = entry.toInt()
+        for (int i=0; i < num_alarms; i++)
+        {
+            entry = f.readStringUntil('\n');
+            // add alarm
+        }
+
+    }
+
+    f.close();
+}
