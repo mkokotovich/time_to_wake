@@ -443,7 +443,7 @@ void AlarmHandler::saveAlarmsToDisk()
             f.println(alarms[i].id);
             f.println(alarms[i].trigger_time);
             f.println(alarms[i].action);
-            f.println(alarms[i].repeating);
+            f.println((alarms[i].repeating ? "TRUE" : "FALSE"));
         }
     }
 
@@ -456,6 +456,10 @@ void AlarmHandler::loadAlarmsFromDisk()
     // open file for reading
     String entry;
     int num_alarms = 0;
+
+    Serial.println("====== Cancel existing alarms =======");
+    cancelAllAlarms();
+
     f = SPIFFS.open(ALARM_FILE, "r");
     if (!f)
     {
@@ -466,14 +470,27 @@ void AlarmHandler::loadAlarmsFromDisk()
     entry = f.readStringUntil('\n');
     if (entry == String(ALARM_FILE_VERSION_V1))
     {
-        entry = f.readStringUntil('\n');
-        num_alarms = entry.toInt()
-        for (int i=0; i < num_alarms; i++)
+        num_alarms = f.readStringUntil('\n').toInt()
+
+        if (num_alarms > MAX_ALARMS)
         {
-            entry = f.readStringUntil('\n');
-            // add alarm
+            num_alarms = MAX_ALARMS;
+            Serial.println(String("Too many alarms, resetting to ") + MAX_ALARMS);
         }
 
+        for (int i=0; i < num_alarms; i++)
+        {
+            // add each alarm
+            alarms[i].id = f.readStringUntil('\n').toInt();
+            alarms[i].trigger_time = f.readStringUntil('\n').toInt();
+            alarms[i].action = f.readStringUntil('\n');
+            entry = f.readStringUntil('\n');
+            alarms[i].repeating = (entry.equals("TRUE") ? true : false);
+        }
+    }
+    else
+    {
+        Serial.println(String("Invalid alarm file version: ") + entry);
     }
 
     f.close();
