@@ -28,18 +28,21 @@ void clockGreen();
 int clockOff(String command)
 {
     clockOff();
+    saveRestUIToDisk();
     return 1;
 }
 
 int clockYellow(String command)
 {
     clockYellow();
+    saveRestUIToDisk();
     return 1;
 }
 
 int clockGreen(String command)
 {
     clockGreen();
+    saveRestUIToDisk();
     return 1;
 }
 
@@ -95,6 +98,8 @@ int setAlarm(String command)
         return -1;
     }
 
+    saveRestUIToDisk();
+
     return 1;
 }
 
@@ -102,6 +107,7 @@ int cancelAllTimers(String command)
 {
     Serial.println("cancelAllTimers called");
     alarmHandler.cancelAllAlarms();
+    saveRestUIToDisk();
     return 1;
 }
 
@@ -109,6 +115,7 @@ int pauseAllTimers(String command)
 {
     Serial.println("pauseAllTimers called");
     alarmHandler.pauseAllAlarms();
+    saveRestUIToDisk();
     return 1;
 }
 

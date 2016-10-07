@@ -104,12 +104,11 @@ void loop() {
   // Reset device if wifi is disconnected
   if (WiFi.status() != WL_CONNECTED)
   {
-    Serial.println("Wifi diconnected, reset connection");
+    Serial.println("Wifi diconnected, save status and reset device");
     
-    startWifi();
-    startRestUIServer();
-    startUpdateServer();
-    start_ntptime();
+    saveRestUIToDisk();
+
+    ESP.reset()
   }
 
   // Update active timers, if needed

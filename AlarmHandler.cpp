@@ -458,22 +458,21 @@ void AlarmHandler::saveAlarmsToDisk(String current_state)
 
 void AlarmHandler::loadAlarmsFromDisk(String &current_state, OnTick_t off_func, OnTick_t yellow_func, OnTick_t green_func) 
 {
-    // open file for reading
-    String entry;
     int num_alarms = 0;
 
-    Serial.println("====== Cancel existing alarms =======");
+    // Cancel any existing alarms, since we'll be overwriting them
     cancelAllAlarms();
 
     f = SPIFFS.open(ALARM_FILE, "r");
     if (!f)
     {
+        // If the file doesn't exist, just return
         Serial.println("file open failed");
         return;
     }
     Serial.println("====== Reading from SPIFFS file =======");
-    entry = f.readStringUntil('\n');
-    if (entry == String(ALARM_FILE_VERSION_V1))
+    String file_version = f.readStringUntil('\n');
+    if (file_version.equals(String(ALARM_FILE_VERSION_V1)))
     {
         current_state = f.readStringUntil('\n');
 
@@ -496,7 +495,7 @@ void AlarmHandler::loadAlarmsFromDisk(String &current_state, OnTick_t off_func, 
     }
     else
     {
-        Serial.println(String("Invalid alarm file version: ") + entry);
+        Serial.println(String("Unsupported alarm file version: ") + file_version);
     }
 
     f.close();
