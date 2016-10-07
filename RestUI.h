@@ -138,9 +138,27 @@ void setupRestUI()
 
 void startRestUIServer(void)
 {
-  // Start the server
-  server.begin();
-  Serial.println("Rest UI server started on port: " + String(UI_LISTEN_PORT));
+    // Start the server
+    server.begin();
+    Serial.println("Rest UI server started on port: " + String(UI_LISTEN_PORT));
+    alarmHandler.loadAlarmsFromDisk(current_state, clockOff, clockYellow, clockGreen);
+    if (current_state.equals("Off"))
+    {
+        clockOff();
+    }
+    else if (current_state.equals("Yellow"))
+    {
+        clockYellow();
+    }
+    else if (current_state.equals("Green"))
+    {
+        clockGreen();
+    }
+}
+
+void saveRestUIToDisk(void)
+{
+    alarmHandler.saveAlarmsToDisk(current_state);
 }
 
 void handleRestUI(void)

@@ -90,6 +90,8 @@ void setup(void)
 
   clockOff();
 
+  SPIFFS.begin();
+
   setupRestUI();
   
   startWifi();
