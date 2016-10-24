@@ -463,7 +463,7 @@ void AlarmHandler::loadAlarmsFromDisk(String &current_state, OnTick_t off_func, 
     // Cancel any existing alarms, since we'll be overwriting them
     cancelAllAlarms();
 
-    f = SPIFFS.open(ALARM_FILE, "r");
+    File f = SPIFFS.open(ALARM_FILE, "r");
     if (!f)
     {
         // If the file doesn't exist, just return
@@ -476,7 +476,7 @@ void AlarmHandler::loadAlarmsFromDisk(String &current_state, OnTick_t off_func, 
     {
         current_state = f.readStringUntil('\n');
 
-        num_alarms = f.readStringUntil('\n').toInt()
+        num_alarms = f.readStringUntil('\n').toInt();
 
         if (num_alarms > MAX_ALARMS)
         {
@@ -515,22 +515,23 @@ void AlarmHandler::addAlarmIfStillValid(time_t trigger_time, String action, bool
         return;
     }
 
-    if (action.toUpperCase().indexOf("OFF") != -1)
+    action.toUpperCase();
+    if (action.indexOf("OFF") != -1)
     {
         func = off_func;
     }
-    else if (action.toUpperCase().indexOf("YELLOW") != -1)
+    else if (action.indexOf("YELLOW") != -1)
     {
         func = yellow_func;
     }
-    else if (action.toUpperCase().indexOf("GREEN") != -1)
+    else if (action.indexOf("GREEN") != -1)
     {
         func = green_func;
     }
     else
     {
         Serial.println(String("Unable to identify action, discard this alarm: ") + action);
-        return
+        return;
     }
 
     if (repeating == true)

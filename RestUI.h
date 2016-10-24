@@ -24,6 +24,11 @@ void clockOff();
 void clockYellow();
 void clockGreen();
 
+void saveRestUIToDisk(void)
+{
+    alarmHandler.saveAlarmsToDisk(current_state);
+}
+
 // Rest UI functions
 int clockOff(String command)
 {
@@ -161,11 +166,6 @@ void startRestUIServer(void)
     {
         clockGreen();
     }
-}
-
-void saveRestUIToDisk(void)
-{
-    alarmHandler.saveAlarmsToDisk(current_state);
 }
 
 void handleRestUI(void)

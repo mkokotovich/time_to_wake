@@ -63,6 +63,11 @@ public:
     void saveAlarmsToDisk();
     void loadAlarmsFromDisk();
 
+    void addAlarmToManager(time_t alarm_time, OnTick_t func, bool repeating, AlarmID_t &id, time_t &trigger_time);
+    void addAlarmIfStillValid(time_t trigger_time, String action, bool repeating, OnTick_t off_func, OnTick_t yellow_func, OnTick_t green_func);
+    void saveAlarmsToDisk(String current_state);
+    void loadAlarmsFromDisk(String &current_state, OnTick_t off_func, OnTick_t yellow_func, OnTick_t green_func);
+
 private:
     bool addToLocalList(AlarmID_t id, time_t trigger_time, String action, bool repeating);
     void cancel(AlarmID_t id);

@@ -4,6 +4,7 @@
 #include "OTAUpdates.h"
 #include "AlarmHandler.h"
 #include "ntptime.h"
+#include "FS.h"
 
 #define ALARM_UPDATE_INTERVAL 2000
 
@@ -108,7 +109,7 @@ void loop() {
     
     saveRestUIToDisk();
 
-    ESP.reset()
+    ESP.reset();
   }
 
   // Update active timers, if needed
