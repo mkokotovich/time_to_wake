@@ -426,12 +426,7 @@ void AlarmHandler::saveAlarmsToDisk(String current_state)
         }
     }
 
-    if (num_alarms <= 0)
-    {
-        Serial.println("No alarms to save");
-        return;
-    }
-    Serial.println("====== Writing to SPIFFS file =========");
+    Serial.println(String("Saving state: ") + current_state + String(" and ") + num_alarms + String(" alarms"));
     // open file for writing
     File f = SPIFFS.open(ALARM_FILE, "w");
     if (!f)
@@ -439,16 +434,22 @@ void AlarmHandler::saveAlarmsToDisk(String current_state)
         Serial.println("file open failed");
         return;
     }
-    f.println(ALARM_FILE_VERSION);
-    f.println(current_state);
-    f.println(num_alarms);
+    f.print(ALARM_FILE_VERSION);
+    f.print('\n');
+    f.print(current_state);
+    f.print('\n');
+    f.print(num_alarms);
+    f.print('\n');
     for (int i = 0; i < MAX_ALARMS; i++)
     {
         if (alarms[i].id != dtINVALID_ALARM_ID)
         {
-            f.println(alarms[i].trigger_time);
-            f.println(alarms[i].action);
-            f.println((alarms[i].repeating ? "TRUE" : "FALSE"));
+            f.print(alarms[i].trigger_time);
+            f.print('\n');
+            f.print(alarms[i].action);
+            f.print('\n');
+            f.print((alarms[i].repeating ? "TRUE" : "FALSE"));
+            f.print('\n');
         }
     }
 
@@ -475,8 +476,11 @@ void AlarmHandler::loadAlarmsFromDisk(String &current_state, OnTick_t off_func, 
     if (file_version.equals(String(ALARM_FILE_VERSION_V1)))
     {
         current_state = f.readStringUntil('\n');
+        Serial.println(String("Read current state: ") + current_state);
 
         num_alarms = f.readStringUntil('\n').toInt();
+
+        Serial.println(String("Read number of alarms: ") + num_alarms);
 
         if (num_alarms > MAX_ALARMS)
         {
@@ -495,7 +499,7 @@ void AlarmHandler::loadAlarmsFromDisk(String &current_state, OnTick_t off_func, 
     }
     else
     {
-        Serial.println(String("Unsupported alarm file version: ") + file_version);
+        Serial.println(String("Unsupported alarm file version: [") + file_version + String("]"));
     }
 
     f.close();
