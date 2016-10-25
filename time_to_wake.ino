@@ -93,12 +93,15 @@ void setup(void)
 
   SPIFFS.begin();
 
+  //Time needs to be set before starting RestUI
+  startWifi();
+  start_ntptime();
+
+  // RestUI will read previous state from file
   setupRestUI();
   
-  startWifi();
   startRestUIServer();
   startUpdateServer();
-  start_ntptime();
 }
 
 void loop() {

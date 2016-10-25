@@ -3,6 +3,8 @@
 
 
 // The port to listen for OTA updates
+// The url for updates is: http://<ip address>:8080/update
+// Upload the <sketch_name>.ino.bin from the build directory
 #define OTA_LISTEN_PORT          8080
 
 ESP8266WebServer httpServer(OTA_LISTEN_PORT);

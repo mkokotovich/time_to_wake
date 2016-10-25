@@ -227,7 +227,7 @@ void AlarmHandler::addAlarmToManager(time_t alarm_time, OnTick_t func, bool repe
 {
     time_t current_time = now();
 
-    Serial.println(String("Adding Alarm for ") + alarm_time + String(" and repeating=") + repeating);
+    Serial.println(String("Adding Alarm for ") + alarm_time + String(" and repeating=") + (repeating ? "TRUE" : "FALSE"));
     if (repeating)
     {
         id = Alarm.alarmRepeat(alarm_time, func);
@@ -453,7 +453,7 @@ void AlarmHandler::saveAlarmsToDisk(String current_state)
             Serial.println(String("Writing action: ") + alarms[i].action);
             f.print((alarms[i].repeating ? "TRUE" : "FALSE"));
             f.print('\n');
-            Serial.println(String("Writing repeating: ") + alarms[i].repeating);
+            Serial.println(String("Writing repeating: ") + (alarms[i].repeating ? "TRUE" : "FALSE"));
         }
     }
 
@@ -500,7 +500,7 @@ void AlarmHandler::loadAlarmsFromDisk(String &current_state, OnTick_t off_func, 
             String action = f.readStringUntil('\n');
             Serial.println(String("Read action: ") + action);
             bool repeating = (f.readStringUntil('\n').equals("TRUE") ? true : false);
-            Serial.println(String("Read repeating: ") + repeating);
+            Serial.println(String("Read repeating: ") + (repeating ? "TRUE" : "FALSE"));
             addAlarmIfStillValid(trigger_time, action, repeating, off_func, yellow_func, green_func);
         }
     }
@@ -525,16 +525,17 @@ void AlarmHandler::addAlarmIfStillValid(time_t trigger_time, String action, bool
         return;
     }
 
-    action.toUpperCase();
-    if (action.indexOf("OFF") != -1)
+    String upperaction = action;
+    upperaction.toUpperCase();
+    if (upperaction.indexOf("OFF") != -1)
     {
         func = off_func;
     }
-    else if (action.indexOf("YELLOW") != -1)
+    else if (upperaction.indexOf("YELLOW") != -1)
     {
         func = yellow_func;
     }
-    else if (action.indexOf("GREEN") != -1)
+    else if (upperaction.indexOf("GREEN") != -1)
     {
         func = green_func;
     }
