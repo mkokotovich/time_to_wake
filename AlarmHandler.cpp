@@ -227,6 +227,7 @@ void AlarmHandler::addAlarmToManager(time_t alarm_time, OnTick_t func, bool repe
 {
     time_t current_time = now();
 
+    Serial.println(String("Adding Alarm for ") + alarm_time + String(" and repeating=") + repeating);
     if (repeating)
     {
         id = Alarm.alarmRepeat(alarm_time, func);
@@ -446,10 +447,13 @@ void AlarmHandler::saveAlarmsToDisk(String current_state)
         {
             f.print(alarms[i].trigger_time);
             f.print('\n');
+            Serial.println(String("Writing trigger_time: ") + alarms[i].trigger_time);
             f.print(alarms[i].action);
             f.print('\n');
+            Serial.println(String("Writing action: ") + alarms[i].action);
             f.print((alarms[i].repeating ? "TRUE" : "FALSE"));
             f.print('\n');
+            Serial.println(String("Writing repeating: ") + alarms[i].repeating);
         }
     }
 
@@ -492,8 +496,11 @@ void AlarmHandler::loadAlarmsFromDisk(String &current_state, OnTick_t off_func, 
         {
             // add each alarm
             time_t trigger_time = f.readStringUntil('\n').toInt();
+            Serial.println(String("Read trigger_time: ") + trigger_time);
             String action = f.readStringUntil('\n');
+            Serial.println(String("Read action: ") + action);
             bool repeating = (f.readStringUntil('\n').equals("TRUE") ? true : false);
+            Serial.println(String("Read repeating: ") + repeating);
             addAlarmIfStillValid(trigger_time, action, repeating, off_func, yellow_func, green_func);
         }
     }
@@ -511,7 +518,6 @@ void AlarmHandler::addAlarmIfStillValid(time_t trigger_time, String action, bool
     OnTick_t func = NULL;
 
     AlarmID_t id = 0;
-    time_t new_trigger_time = 0;
 
     if (trigger_time <= current_time && repeating == false)
     {
@@ -543,7 +549,7 @@ void AlarmHandler::addAlarmIfStillValid(time_t trigger_time, String action, bool
         while (trigger_time <= current_time)
         {
             // Add a day at a time until we have a valid trigger_time
-            trigger_time += 86400;
+            trigger_time += SECS_PER_DAY;
         }
     }
 
