@@ -18,3 +18,5 @@ initialize-workspace:
 
 initialize-libraries:
 	cd .. ; ${ARDUINO} --preferences-file ./${PROJECT}/preferences.txt --install-library "Time:1.5,TimeAlarms:1.5" ; cd -
+	cd ../libraries ; git clone https://github.com/mkokotovich/aREST_UI.git ; cd -
+	cd ../libraries ; git clone https://github.com/mkokotovich/aREST.git ; cd -
