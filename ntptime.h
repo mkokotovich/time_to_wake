@@ -10,12 +10,47 @@ IPAddress timeServer2(132, 163, 4, 103); // time-c.timefreq.bldrdoc.gov
 IPAddress timeServer3(132, 163, 4, 101); // time-a.timefreq.bldrdoc.gov
 IPAddress servers[3] = {timeServer1, timeServer2, timeServer3};
 
+const int timeZone = -6;  // Central Standard Time (USA)
 
-//const int timeZone = 1;     // Central European Time
-//const int timeZone = -5;  // Eastern Standard Time (USA)
-//const int timeZone = -4;  // Eastern Daylight Time (USA)
-const int timeZone = -5;  // Central Daylight Time (USA)
 
+String printDigits(int digits)
+{
+    // utility for digital clock display: prints preceding colon and leading 0
+    String output = ":";
+    if(digits < 10)
+        output += "0";
+    output += String(digits);
+
+    return output;
+}
+
+void get_time_as_string(String &currentTimeStr)
+{
+     currentTimeStr = String(hourFormat12()) + printDigits(minute()) + (isAM() ? " AM" : " PM");
+}
+
+
+int dstOffset (unsigned long unixTime)
+{
+  //Receives unix epoch time and returns seconds of offset for local DST
+  //Valid thru 2099 for US only, Calculations from "http://www.webexhibits.org/daylightsaving/i.html"
+  //Code idea from jm_wsb @ "http://forum.arduino.cc/index.php/topic,40286.0.html"
+  //Get epoch times @ "http://www.epochconverter.com/" for testing
+  //DST update wont be reflected until the next time sync
+  time_t t = unixTime;
+  int beginDSTDay = (14 - (1 + year(t) * 5 / 4) % 7);  
+  int beginDSTMonth=3;
+  int endDSTDay = (7 - (1 + year(t) * 5 / 4) % 7);
+  int endDSTMonth=11;
+  if (((month(t) > beginDSTMonth) && (month(t) < endDSTMonth))
+    || ((month(t) == beginDSTMonth) && (day(t) > beginDSTDay))
+    || ((month(t) == beginDSTMonth) && (day(t) == beginDSTDay) && (hour(t) >= 2))
+    || ((month(t) == endDSTMonth) && (day(t) < endDSTDay))
+    || ((month(t) == endDSTMonth) && (day(t) == endDSTDay) && (hour(t) < 1)))
+    return (3600);  //Add back in one hours worth of seconds - DST in effect
+  else
+    return (0);  //NonDST
+}
 
 WiFiUDP Udp;
 unsigned int localPort = 8888;  // local port to listen for UDP packets
@@ -60,12 +95,14 @@ time_t getNtpTime()
                 Serial.println("Receive NTP Response");
                 Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
                 unsigned long secsSince1900;
+                unsigned long epoch_time;
                 // convert four bytes starting at location 40 to a long integer
                 secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
                 secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
                 secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
                 secsSince1900 |= (unsigned long)packetBuffer[43];
-                return secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR;
+                epoch_time = secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR;
+                return epoch_time + dstOffset(epoch_time);
             }
         }
         Serial.println("No NTP Response :-(");
@@ -75,8 +112,8 @@ time_t getNtpTime()
 
 void start_ntptime()
 {
-  Udp.begin(localPort);
-  Serial.println("UDP for NTP Time started on port: " + String(Udp.localPort()));
-  Serial.println("waiting for sync");
-  setSyncProvider(getNtpTime);
+    Udp.begin(localPort);
+    Serial.println("UDP for NTP Time started on port: " + String(Udp.localPort()));
+    Serial.println("waiting for sync");
+    setSyncProvider(getNtpTime);
 }

@@ -23,6 +23,7 @@ int yellow_leds[NUM_YELLOW] = {D1, D2, D3};
 String current_state = "UNINITIALIZED";
 // Variable to hold the timer state, which will be displayed
 String activeAlarms = "None";
+String currentTime = "unknown";
 
 unsigned long lastAlarmUpdate = 0;
 
@@ -123,6 +124,9 @@ void loop() {
   {
     alarmHandler.updateActiveAlarms(activeAlarms);
     lastAlarmUpdate = millis();
+
+    // Also update time
+    get_time_as_string(currentTime);
   }
   
   handleOTAUpdate();

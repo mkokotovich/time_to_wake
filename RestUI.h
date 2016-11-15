@@ -18,6 +18,7 @@ WiFiServer server(UI_LISTEN_PORT);
 // Rest UI variables (declared in ino)
 extern String current_state;
 extern String activeAlarms;
+extern String currentTime;
 
 // Functions declared in ino
 void clockOff();
@@ -142,6 +143,8 @@ void setupRestUI()
     rest.label("Add an alarm:");
     rest.function_with_input_button("setAlarm", "Add", setAlarm);
     rest.label("For example: 6:15 PM yellow, or 7:00 am green, or 15 off (in 15 minutes turn it off)", true);
+    // Display current time
+    rest.variable_label("currentTime", "Current time", &currentTime);
     // Display the timer state
     rest.variable_label("activeAlarms", "Active Alarms", &activeAlarms);
     rest.function_button("pauseAllTimers", "Pause/Resume All Timers", pauseAllTimers);
