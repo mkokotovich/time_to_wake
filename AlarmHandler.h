@@ -47,6 +47,12 @@ public:
         int &minute,
         int &duration);
 
+    time_t alarm_time_to_trigger_time(time_t alarm_time);
+
+    bool delete_timer(
+        int &hour,
+        int &minute);
+
     bool add_new_timer(
         String options[],
         int &hour,
@@ -64,6 +70,7 @@ public:
     void loadAlarmsFromDisk();
 
     void addAlarmToManager(time_t alarm_time, OnTick_t func, bool repeating, AlarmID_t &id, time_t &trigger_time);
+    bool cancelAlarmsAtTime(time_t trigger_time);
     void addAlarmIfStillValid(time_t trigger_time, String action, bool repeating, OnTick_t off_func, OnTick_t yellow_func, OnTick_t green_func);
     void saveAlarmsToDisk(String current_state);
     void loadAlarmsFromDisk(String &current_state, OnTick_t off_func, OnTick_t yellow_func, OnTick_t green_func);

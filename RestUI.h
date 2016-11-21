@@ -88,6 +88,17 @@ int setAlarm(String command)
             func = clockGreen;
             func_action += "Green";
         }
+        else if (options[i].equalsIgnoreCase("D"))
+        {
+            if (!alarmHandler.delete_timer(hour, minute))
+            {
+                activeAlarms = "Error deleting timer";
+                Serial.println(activeAlarms);
+                return -1;
+            }
+            saveRestUIToDisk();
+            return 1;
+        }
     }
 
     if (func == NULL)

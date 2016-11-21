@@ -178,6 +178,33 @@ bool AlarmHandler::parse_timer_string(String command,
     return success;
 }
 
+time_t AlarmHandler::alarm_time_to_trigger_time(time_t alarm_time)
+{
+    time_t current_time = now();
+    time_t trigger_time = 0;
+
+    if (elapsedSecsToday(current_time) < alarm_time)
+    {
+        // Alarm still happens today
+        trigger_time = previousMidnight(current_time) + alarm_time;
+    }
+    else
+    {
+        // Alarm happens tomorrow
+        trigger_time = nextMidnight(current_time) + alarm_time;
+    }
+
+    return trigger_time;
+}
+
+bool AlarmHandler::delete_timer(
+        int &hour,
+        int &minute)
+{
+    time_t alarm_time = hour * SECS_PER_HOUR + minute * SECS_PER_MIN;
+    return cancelAlarmsAtTime(alarm_time_to_trigger_time(alarm_time));
+}
+
 bool AlarmHandler::add_new_timer(
         String options[],
         int &hour,
@@ -225,8 +252,6 @@ bool AlarmHandler::add_new_timer(
 
 void AlarmHandler::addAlarmToManager(time_t alarm_time, OnTick_t func, bool repeating, AlarmID_t &id, time_t &trigger_time)
 {
-    time_t current_time = now();
-
     Serial.println(String("Adding Alarm for ") + alarm_time + String(" and repeating=") + (repeating ? "TRUE" : "FALSE"));
     if (repeating)
     {
@@ -236,17 +261,22 @@ void AlarmHandler::addAlarmToManager(time_t alarm_time, OnTick_t func, bool repe
     {
         id = Alarm.alarmOnce(alarm_time, func);
     }
+    trigger_time = alarm_time_to_trigger_time(alarm_time);
+}
 
-    if (elapsedSecsToday(current_time) < alarm_time)
+bool AlarmHandler::cancelAlarmsAtTime(time_t trigger_time)
+{
+    bool found = false;
+    for (int i = 0; i < MAX_ALARMS; i++)
     {
-        // Alarm still happens today
-        trigger_time = previousMidnight(current_time) + alarm_time;
+        if (alarms[i].id != dtINVALID_ALARM_ID && alarms[i].trigger_time == trigger_time)
+        {
+            found = true;
+            cancel(alarms[i].id);
+            alarms[i].id = dtINVALID_ALARM_ID;
+        }
     }
-    else
-    {
-        // Alarm happens tomorrow
-        trigger_time = nextMidnight(current_time) + alarm_time;
-    }
+    return found;
 }
 
 void AlarmHandler::cancelAllAlarms()
