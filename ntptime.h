@@ -5,9 +5,9 @@
 #include <WiFiUdp.h>
 
 // NTP Servers:
-IPAddress timeServer1(132, 163, 4, 102); // time-b.timefreq.bldrdoc.gov
-IPAddress timeServer2(132, 163, 4, 103); // time-c.timefreq.bldrdoc.gov
-IPAddress timeServer3(132, 163, 4, 101); // time-a.timefreq.bldrdoc.gov
+IPAddress timeServer1(132, 163, 96, 2); // time-b.timefreq.bldrdoc.gov or  time-b-b.nist.gov
+IPAddress timeServer2(132, 163, 96, 3); // time-c.timefreq.bldrdoc.gov or  time-c-b.nist.gov
+IPAddress timeServer3(132, 163, 96, 1); // time-a.timefreq.bldrdoc.gov or  time-a-b.nist.gov
 IPAddress servers[3] = {timeServer1, timeServer2, timeServer3};
 
 const int timeZone = -6;  // Central Standard Time (USA)
